@@ -14,7 +14,7 @@ It adds download entry points for:
 - GitHub raw install:
   [X easy Media Downloader.user.js](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X%20easy%20Media%20Downloader.user.js)
 - GreasyFork:
-  publish pending
+  [X easy Media Downloader](https://greasyfork.org/scripts/572221-x-easy-media-downloader)
 
 ## Highlights
 
