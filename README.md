@@ -2,10 +2,19 @@
 
 Media downloader userscript for X/Twitter.
 
+[Install from GitHub](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X_easyMediaDownloader.user.js)
+
 It adds download entry points for:
 - timeline tweets
 - single media-view pages
 - `/username/media` profile media pages
+
+## Quick Install
+
+- GitHub raw install:
+  [X_easyMediaDownloader.user.js](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X_easyMediaDownloader.user.js)
+- GreasyFork:
+  publish pending
 
 ## Highlights
 
@@ -24,6 +33,16 @@ It adds download entry points for:
 | Timeline / tweet detail | Inline download button on media tweets |
 | Single media view | Floating download button |
 | Profile media page | Batch floating button with preview and ZIP export |
+
+## Screenshots
+
+Add screenshots after publishing:
+
+```md
+![Timeline Download Button](docs/screenshots/timeline-button.png)
+![Single Media View](docs/screenshots/media-view-button.png)
+![Batch Preview Dialog](docs/screenshots/batch-preview.png)
+```
 
 ## Interaction
 
