@@ -7,8 +7,8 @@
 // @description:en Stable media downloader for X/Twitter with filename templates, local history, and media-view support.
 // @description:zh-CN 为 X/Twitter 推文提供稳定的图片、视频、GIF 下载按钮，支持文件名模板、本地下载历史和媒体页入口。
 // @description:zh-TW 為 X/Twitter 推文提供穩定的圖片、影片、GIF 下載按鈕，支援檔名模板、本地下載歷史和媒體頁入口。
-// @version      0.1.0
-// @author       Fishknowsss + Codex
+// @version      1.0.0
+// @author       Fishknowsss
 // @namespace    https://greasyfork.org/users/1441951
 // @license      MIT
 // @match        https://twitter.com/*

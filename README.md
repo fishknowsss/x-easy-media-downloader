@@ -1,295 +1,134 @@
 # X_easyMediaDownloader
 
-<div align="center">
+Media downloader userscript for X/Twitter.
 
-<h2>X / Twitter 媒体下载增强脚本</h2>
+It adds download entry points for:
+- timeline tweets
+- single media-view pages
+- `/username/media` profile media pages
 
-<p>
-为时间线推文、单媒体查看页、用户媒体页提供更顺手的下载入口。<br>
-支持文件名模板、本地下载历史、批量预览选择、ZIP 打包与移动端多媒体下载。
-</p>
+## Highlights
 
-<p>
-<a href="#主要功能">主要功能</a> ·
-<a href="#交互方式">交互方式</a> ·
-<a href="#命名模板">命名模板</a> ·
-<a href="#使用流程">使用流程</a> ·
-<a href="#已知说明">已知说明</a>
-</p>
+- Download photos, videos, and GIF media from supported tweet views
+- Batch collect visible media from profile media pages
+- Preview and select batch items before packaging
+- Save batch downloads as ZIP
+- Use filename templates for tweet media files
+- Use a separate ZIP filename template for profile media-page archives
+- Keep local download history and reflect status on buttons
 
-</div>
+## Supported Views
 
----
+| View | Behavior |
+| --- | --- |
+| Timeline / tweet detail | Inline download button on media tweets |
+| Single media view | Floating download button |
+| Profile media page | Batch floating button with preview and ZIP export |
 
-## 主要功能
+## Interaction
 
-<table>
-  <thead>
-    <tr>
-      <th>场景</th>
-      <th>能力</th>
-      <th>说明</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><b>时间线 / 推文详情</b></td>
-      <td>单条媒体下载</td>
-      <td>在带媒体的推文操作区插入下载按钮，支持图片、视频、GIF。</td>
-    </tr>
-    <tr>
-      <td><b>单媒体查看页</b></td>
-      <td>悬浮下载入口</td>
-      <td>打开 <code>/status/.../photo/...</code> 或 <code>/status/.../video/...</code> 时显示悬浮按钮。</td>
-    </tr>
-    <tr>
-      <td><b>用户媒体页</b></td>
-      <td>批量采集与 ZIP 下载</td>
-      <td>在 <code>/用户名/media</code> 页面提供批量入口，自动滚动采集媒体并弹出预览选择窗口。</td>
-    </tr>
-    <tr>
-      <td><b>命名控制</b></td>
-      <td>模板化文件名</td>
-      <td>时间线单文件命名与媒体页批量 ZIP 名称分开配置。</td>
-    </tr>
-    <tr>
-      <td><b>下载记录</b></td>
-      <td>本地历史标记</td>
-      <td>已下载的推文会记录到本地，按钮状态会同步变化。</td>
-    </tr>
-    <tr>
-      <td><b>移动端</b></td>
-      <td>多媒体 ZIP</td>
-      <td>移动端多媒体场景可直接打包为 ZIP，减少逐个保存的操作成本。</td>
-    </tr>
-  </tbody>
-</table>
+### Timeline / Tweet Detail
 
----
+- Left click: download the current tweet media
+- Right click: open main download settings
 
-## 交互方式
+### Single Media View
 
-### 1. 时间线 / 推文详情
-- 左键下载当前推文媒体
-- 多媒体推文会弹出预览窗口，可勾选后下载
-- 右键打开“主下载设置”
-- 主下载设置用于：
-  - 文件名模板
-  - 本地历史记录
-  - 移动端 ZIP 行为
+- Left click: download the current tweet media
+- Right click: open main download settings
 
-### 2. 单媒体查看页
-- 左键下载当前推文媒体
-- 右键打开“主下载设置”
-- 适合在图片查看页、视频查看页快速保存当前推文附件
+### Profile Media Page
 
-### 3. 用户媒体页
-- 左键启动批量采集
-- 页面会自动滚动采集媒体
-- 采集完成后弹出宽版预览窗口
-- 可全选、清空选择、勾选后打包下载 ZIP
-- 右键打开“媒体页 ZIP 文件名设置”
-- 该设置只影响外层 ZIP 文件名
+- Left click: start batch collection
+- Automatic scroll collection runs on the media page
+- A wide preview dialog opens after collection
+- Right click: open ZIP filename settings for media-page batch download
 
----
+## Filename Templates
 
-## 使用流程
+### Media Files
 
-### 时间线下载流程
-
-```text
-发现带媒体的推文
-        ↓
-点击下载按钮
-        ↓
-解析图片 / 视频 / GIF
-        ↓
-单文件直接下载 或 多媒体预览选择
-        ↓
-写入本地下载历史
-```
-
-### 用户媒体页批量流程
-
-```text
-进入 /用户名/media
-        ↓
-点击批量下载按钮
-        ↓
-自动滚动采集媒体页内容
-        ↓
-弹出宽版预览窗口
-        ↓
-选择要打包的媒体
-        ↓
-生成 ZIP 并下载
-```
-
----
-
-## 命名模板
-
-### A. 时间线 / 单媒体文件模板
-默认模板：
+Default template:
 
 ```text
 X_{user-name}(@{user-id})_{post-time}
 ```
 
-用于：
-- 时间线单文件下载
-- 推文详情下载
-- 单媒体查看页下载
-- 媒体页批量 ZIP 内部每个文件的名称
+Used for:
+- timeline downloads
+- single media-view downloads
+- files inside profile media-page ZIP archives
 
-支持占位符：
+Supported placeholders:
 
-| 占位符 | 含义 |
-|---|---|
-| `{user-id}` | 用户 ID / 用户名 |
-| `{user-name}` | 显示昵称 |
-| `{post-id}` | 推文 ID |
-| `{post-time}` | 推文时间 |
-| `{media-type}` | 媒体类型 |
-| `{index}` | 序号 |
-| `{ext}` | 扩展名 |
+| Placeholder | Meaning |
+| --- | --- |
+| `{user-id}` | account handle / user id |
+| `{user-name}` | display name |
+| `{post-id}` | tweet id |
+| `{post-time}` | formatted tweet time |
+| `{media-type}` | photo / video / gif |
+| `{index}` | item index |
+| `{ext}` | file extension |
 
-### B. 媒体页批量 ZIP 模板
-默认模板：
+### Batch ZIP Archive
+
+Default template:
 
 ```text
 X_{user-name}(@{user-id})
 ```
 
-用于：
-- 只控制媒体页批量下载生成的外层 ZIP 文件名
+Used only for:
+- outer ZIP filename generated from `/username/media`
 
-支持占位符：
+Supported placeholders:
 
-| 占位符 | 含义 |
-|---|---|
-| `{user-id}` | 用户 ID / 用户名 |
-| `{user-name}` | 显示昵称 |
+| Placeholder | Meaning |
+| --- | --- |
+| `{user-id}` | account handle / user id |
+| `{user-name}` | display name |
 
----
+## Batch Flow
 
-## 预览窗口说明
+```text
+Open /username/media
+    ->
+Click batch button
+    ->
+Auto-scroll and collect media
+    ->
+Open wide preview dialog
+    ->
+Select wanted items
+    ->
+Download ZIP
+```
 
-批量采集完成后会打开宽版预览窗口，特点如下：
+## Installation
 
-- 宽布局，适合大量媒体浏览
-- 多列网格展示
-- 独立滚动区域
-- 支持全选 / 清空选择
-- 支持逐项勾选
-- 最终统一打包为 ZIP
+1. Install a userscript manager such as Tampermonkey.
+2. Open `X_easyMediaDownloader.user.js`.
+3. Install the script in your userscript manager.
+4. Visit `https://x.com/*` or `https://twitter.com/*`.
 
----
+## Repository Files
 
-## 状态反馈
+- `X_easyMediaDownloader.user.js`: main userscript
+- `README.md`: project overview
+- `LICENSE`: repository license text
+- `RELEASE_NOTES_v1.0.0.md`: first release notes draft for GitHub Releases
 
-脚本会通过按钮状态和提示气泡反馈当前进度：
+## Version
 
-<table>
-  <thead>
-    <tr>
-      <th>状态</th>
-      <th>表现</th>
-      <th>含义</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>空闲</td>
-      <td>默认图标</td>
-      <td>当前推文或页面尚未下载</td>
-    </tr>
-    <tr>
-      <td>处理中</td>
-      <td>按钮高亮 / 提示进度</td>
-      <td>正在解析、采集、下载或打包</td>
-    </tr>
-    <tr>
-      <td>完成</td>
-      <td>完成态图标</td>
-      <td>该推文已记录下载历史</td>
-    </tr>
-    <tr>
-      <td>失败</td>
-      <td>失败态图标 / 错误提示</td>
-      <td>当前操作中有请求失败或资源不可达</td>
-    </tr>
-  </tbody>
-</table>
+Current release target:
 
----
+```text
+v1.0.0
+```
 
-## 推荐用法
+## Notes
 
-<details>
-  <summary><b>我只想快速下载单条推文媒体</b></summary>
-
-- 在时间线直接点下载按钮
-- 如果是多媒体推文，在预览窗口里勾选后下载
-- 如果常用固定命名规则，可右键按钮先调整主模板
-
-</details>
-
-<details>
-  <summary><b>我想批量保存某个用户媒体页的图片</b></summary>
-
-- 打开该用户的 <code>/media</code> 页面
-- 点击底部批量下载按钮
-- 等待自动滚动采集结束
-- 在宽版预览窗口中筛选并下载 ZIP
-- 若你希望 ZIP 包名称固定，可右键批量按钮修改 ZIP 模板
-
-</details>
-
-<details>
-  <summary><b>我想区分“ZIP 文件名”和“内部文件名”</b></summary>
-
-- 右键时间线按钮：修改“内部文件名模板”
-- 右键媒体页批量按钮：修改“ZIP 外层文件名模板”
-
-</details>
-
----
-
-## 已知说明
-
-- 时间线 / 推文详情页支持图片、视频、GIF 的解析与下载
-- 用户媒体页批量下载当前以媒体页可见采集内容为基础
-- 批量流程更适合图片型媒体页场景
-- 下载历史存储在本地浏览器
-- 若 X 页面结构变化较大，脚本可能需要后续适配更新
-
----
-
-## 版本信息
-
-### v1.0.0
-- 提供时间线推文下载按钮
-- 提供单媒体查看页悬浮下载入口
-- 提供用户媒体页批量采集、预览选择与 ZIP 下载
-- 支持时间线文件模板与媒体页 ZIP 模板分离配置
-- 支持本地下载历史记录与状态反馈
-- 优化批量预览窗口布局与滚动体验
-
----
-
-## 适用站点
-
-- `https://x.com/*`
-- `https://twitter.com/*`
-
----
-
-## 反馈建议
-
-如果你遇到以下情况，欢迎反馈：
-- 某些视频推文无法解析
-- 某些页面按钮位置异常
-- 批量采集范围与预期不一致
-- 命名模板希望增加更多占位符
-- 移动端交互仍需继续优化
+- This project targets the current X/Twitter web UI structure.
+- Future site changes may require selector or behavior updates.
+- Local download history is stored in the browser.
