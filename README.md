@@ -1,8 +1,8 @@
-# X_easyMediaDownloader
+# X easy Media Downloader
 
 Media downloader userscript for X/Twitter.
 
-[Install from GitHub](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X_easyMediaDownloader.user.js)
+[Install from GitHub](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X%20easy%20Media%20Downloader.user.js)
 
 It adds download entry points for:
 - timeline tweets
@@ -12,7 +12,7 @@ It adds download entry points for:
 ## Quick Install
 
 - GitHub raw install:
-  [X_easyMediaDownloader.user.js](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X_easyMediaDownloader.user.js)
+  [X easy Media Downloader.user.js](https://raw.githubusercontent.com/fishknowsss/x-easy-media-downloader/main/X%20easy%20Media%20Downloader.user.js)
 - GreasyFork:
   publish pending
 
@@ -127,13 +127,13 @@ Download ZIP
 ## Installation
 
 1. Install a userscript manager such as Tampermonkey.
-2. Open `X_easyMediaDownloader.user.js`.
+2. Open `X easy Media Downloader.user.js`.
 3. Install the script in your userscript manager.
 4. Visit `https://x.com/*` or `https://twitter.com/*`.
 
 ## Repository Files
 
-- `X_easyMediaDownloader.user.js`: main userscript
+- `X easy Media Downloader.user.js`: main userscript
 - `README.md`: project overview
 - `LICENSE`: repository license text
 - `RELEASE_NOTES_v1.0.0.md`: first release notes draft for GitHub Releases

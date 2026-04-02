@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         X_easyMediaDownloader
-// @name:en      X_easyMediaDownloader
-// @name:zh-CN   X_easyMediaDownloader
-// @name:zh-TW   X_easyMediaDownloader
+// @name         X easy Media Downloader
+// @name:en      X easy Media Downloader
+// @name:zh-CN   X easy Media Downloader
+// @name:zh-TW   X easy Media Downloader
 // @description  Stable media downloader for X/Twitter with filename templates, local history, and media-view support.
 // @description:en Stable media downloader for X/Twitter with filename templates, local history, and media-view support.
 // @description:zh-CN 为 X/Twitter 推文提供稳定的图片、视频、GIF 下载按钮，支持文件名模板、本地下载历史和媒体页入口。
@@ -23,6 +23,8 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_registerMenuCommand
 // @run-at       document-idle
+// @downloadURL https://update.greasyfork.org/scripts/572221/X%20easy%20Media%20Downloader.user.js
+// @updateURL https://update.greasyfork.org/scripts/572221/X%20easy%20Media%20Downloader.meta.js
 // ==/UserScript==
 
 /* jshint esversion: 11 */

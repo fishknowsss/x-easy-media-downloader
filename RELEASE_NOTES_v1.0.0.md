@@ -1,6 +1,6 @@
-# X_easyMediaDownloader v1.0.0
+# X easy Media Downloader v1.0.0
 
-First public release of `X_easyMediaDownloader`.
+First public release of `X easy Media Downloader`.
 
 ## Included
 
