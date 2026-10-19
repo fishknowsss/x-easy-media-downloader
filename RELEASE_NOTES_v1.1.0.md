@@ -1,12 +1,13 @@
-# X easy Media Downloader v1.0.0
+# X easy Media Downloader v1.1.0
 
-First public release of `X easy Media Downloader`.
+Release notes for `X easy Media Downloader` v1.1.0.
 
 ## Included
 
 - Timeline tweet media download button
 - Single media-view floating download button
-- Profile media-page batch collection and ZIP download
+- Mixed image/video tweet resolution
+- Profile media-page image batch collection and ZIP download
 - Preview picker for multi-item downloads
 - Separate filename template systems:
   - media file template
@@ -48,5 +49,5 @@ X_{user-name}(@{user-id})
 
 ## Notes
 
-- Batch collection currently targets profile media pages and is best suited to media-page browsing workflows.
+- Batch collection currently targets profile media pages and is best suited to image browsing workflows.
 - Future X/Twitter UI changes may require maintenance updates.

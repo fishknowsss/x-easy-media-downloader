@@ -7,7 +7,7 @@
 // @description:en Stable media downloader for X/Twitter with filename templates, local history, and media-view support.
 // @description:zh-CN 为 X/Twitter 推文提供稳定的图片、视频、GIF 下载按钮，支持文件名模板、本地下载历史和媒体页入口。
 // @description:zh-TW 為 X/Twitter 推文提供穩定的圖片、影片、GIF 下載按鈕，支援檔名模板、本地下載歷史和媒體頁入口。
-// @version      1.0.0
+// @version      1.1.1
 // @author       Fishknowsss
 // @namespace    https://greasyfork.org/users/1441951
 // @license      MIT
@@ -380,6 +380,15 @@
             .replace(/[\\/:*?"<>|]+/g, '_')
             .replace(/\s+/g, ' ')
             .trim();
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function sleep(ms) {
@@ -800,7 +809,8 @@
         const videos = [];
         const gifs = [];
 
-        const videoElements = Array.from(article.querySelectorAll('div[data-testid="videoPlayer"] video'));
+        const videoPlayers = Array.from(article.querySelectorAll('div[data-testid="videoPlayer"]'));
+        const videoElements = videoPlayers.flatMap(player => Array.from(player.querySelectorAll('video')));
         videoElements.forEach(video => {
             if (video.src?.includes('tweet_video')) {
                 gifs.push({
@@ -817,7 +827,7 @@
             const src = img.src;
             if (!src) return;
             if (src.includes('tweet_video_thumb')) {
-                const gifId = src.split('?')[0].split('/').pop();
+                const gifId = src.split('?')[0].split('/').pop().replace(/\.[a-z0-9]+$/i, '');
                 gifs.push({
                     url: `https://video.twimg.com/tweet_video/${gifId}.mp4`,
                     typeLabel: 'gif',
@@ -841,7 +851,8 @@
         return {
             images: dedupeMedia(images),
             gifs: dedupeMedia(gifs),
-            videoPlaceholders: dedupeMedia(videos)
+            videoPlaceholders: dedupeMedia(videos),
+            hasVideoPlayer: videoPlayers.length > 0
         };
     }
 
@@ -890,7 +901,7 @@
     function pickBestVideoVariant(media) {
         const variants = media?.video_info?.variants?.filter(variant => variant.content_type === 'video/mp4') || [];
         if (!variants.length) return null;
-        return variants.reduce((best, current) => ((current.bitrate || 0) > (best?.bitrate || 0) ? current : best), null);
+        return variants.reduce((best, current) => ((current.bitrate || 0) > (best.bitrate || 0) ? current : best));
     }
 
     function createMediaItem(url, typeLabel, ext, extra = {}) {
@@ -980,7 +991,7 @@
 
         const domMedia = collectDomMedia(article);
         const media = [...domMedia.images, ...domMedia.gifs];
-        const needsGraph = domMedia.videoPlaceholders.length > 0 || media.length === 0;
+        const needsGraph = domMedia.hasVideoPlayer || domMedia.videoPlaceholders.length > 0 || media.length === 0;
 
         if (!needsGraph || !context?.postId) {
             const resolved = dedupeMedia(media);
@@ -995,9 +1006,8 @@
             return resolved;
         } catch (error) {
             console.warn(`${SCRIPT_ID}: GraphQL resolution failed`, error);
-            if (domMedia.videoPlaceholders.length > 0) showToast(t('toast.graphFailed'));
+            if (domMedia.hasVideoPlayer || domMedia.videoPlaceholders.length > 0) showToast(t('toast.graphFailed'));
             const resolved = dedupeMedia(media);
-            if (context?.postId) state.resolvedMediaCache.set(context.postId, resolved);
             return resolved;
         }
     }
@@ -1212,6 +1222,17 @@
         });
     }
 
+    function bindEscapeToClose(close) {
+        function onKeyDown(event) {
+            if (event.key !== 'Escape') return;
+            window.removeEventListener('keydown', onKeyDown);
+            close();
+        }
+
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }
+
     function openMediaPicker(context, items, options = {}) {
         return new Promise(resolve => {
             closeSettings();
@@ -1227,17 +1248,17 @@
 
             modal.innerHTML = `
                 <div class="xedl-modal-card${options.wide ? ' xedl-modal-card-wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="${MODAL_ID}-title">
-                    <h2 id="${MODAL_ID}-title">${titleText}</h2>
+                    <h2 id="${MODAL_ID}-title">${escapeHtml(titleText)}</h2>
                     <div class="xedl-field">
-                        <label>${mediaTitleText}</label>
-                        ${options.statsText ? `<div class="xedl-hint">${options.statsText}</div>` : ''}
+                        <label>${escapeHtml(mediaTitleText)}</label>
+                        ${options.statsText ? `<div class="xedl-hint">${escapeHtml(options.statsText)}</div>` : ''}
                         <div class="xedl-media-grid" id="${MODAL_ID}-media"></div>
                     </div>
                     <div class="xedl-actions">
                         <div class="xedl-actions-group" id="${MODAL_ID}-actions-left"></div>
                         <div class="xedl-actions-group">
-                            <button type="button" class="xedl-btn xedl-btn-secondary" id="${MODAL_ID}-cancel">${cancelText}</button>
-                            <button type="button" class="xedl-btn xedl-btn-primary" id="${MODAL_ID}-confirm">${confirmText}</button>
+                            <button type="button" class="xedl-btn xedl-btn-secondary" id="${MODAL_ID}-cancel">${escapeHtml(cancelText)}</button>
+                            <button type="button" class="xedl-btn xedl-btn-primary" id="${MODAL_ID}-confirm">${escapeHtml(confirmText)}</button>
                         </div>
                     </div>
                 </div>
@@ -1247,25 +1268,48 @@
 
             const mediaContainer = modal.querySelector(`#${MODAL_ID}-media`);
             const leftActions = modal.querySelector(`#${MODAL_ID}-actions-left`);
-            mediaContainer.innerHTML = items.map((item, index) => {
+            items.forEach((item, index) => {
                 const meta = describeMediaItem(item, index);
                 const previewUrl = getMediaPreviewUrl(item);
-                const noPreviewClass = previewUrl ? '' : ' xedl-no-preview';
                 const chip = meta.title.split('. ').slice(1).join('. ');
-                return `
-                    <div class="xedl-media-card${noPreviewClass}">
-                        <label>
-                            <input type="checkbox" data-media-index="${index}" checked />
-                            <div class="xedl-media-thumb" style="${previewUrl ? `background-image:url('${previewUrl.replace(/'/g, "\\'")}');` : ''}"></div>
-                            <div class="xedl-media-chip">${chip}</div>
-                            <div class="xedl-media-meta">
-                                <div class="xedl-media-title">${meta.title}</div>
-                                <div class="xedl-media-desc">${meta.detail}</div>
-                            </div>
-                        </label>
-                    </div>
-                `;
-            }).join('');
+
+                const card = document.createElement('div');
+                card.className = `xedl-media-card${previewUrl ? '' : ' xedl-no-preview'}`;
+
+                const label = document.createElement('label');
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.dataset.mediaIndex = String(index);
+                input.checked = true;
+
+                const thumb = document.createElement('div');
+                thumb.className = 'xedl-media-thumb';
+                if (previewUrl) thumb.style.backgroundImage = `url("${previewUrl.replace(/["\\\n\r\f]/g, '\\$&')}")`;
+
+                const chipNode = document.createElement('div');
+                chipNode.className = 'xedl-media-chip';
+                chipNode.textContent = chip;
+
+                const metaNode = document.createElement('div');
+                metaNode.className = 'xedl-media-meta';
+
+                const titleNode = document.createElement('div');
+                titleNode.className = 'xedl-media-title';
+                titleNode.textContent = meta.title;
+
+                const descNode = document.createElement('div');
+                descNode.className = 'xedl-media-desc';
+                descNode.textContent = meta.detail;
+
+                metaNode.appendChild(titleNode);
+                metaNode.appendChild(descNode);
+                label.appendChild(input);
+                label.appendChild(thumb);
+                label.appendChild(chipNode);
+                label.appendChild(metaNode);
+                card.appendChild(label);
+                mediaContainer.appendChild(card);
+            });
 
             if (options.enableBulkActions) {
                 const selectAllButton = document.createElement('button');
@@ -1285,9 +1329,12 @@
             }
 
             function closePicker(result) {
+                unbindEscape();
                 modal.remove();
                 resolve(result);
             }
+
+            const unbindEscape = bindEscapeToClose(() => closePicker(null));
 
             modal.addEventListener('click', event => {
                 if (event.target === modal) closePicker(null);
@@ -1586,6 +1633,12 @@
 
         const templateInput = modal.querySelector(`#${MODAL_ID}-zip-template`);
         const preview = modal.querySelector(`#${MODAL_ID}-zip-preview`);
+        const unbindEscape = bindEscapeToClose(closeModal);
+
+        function closeModal() {
+            unbindEscape();
+            closeSettings();
+        }
 
         function updatePreview() {
             preview.textContent = renderBatchZipTemplate(templateInput.value || DEFAULT_BATCH_ZIP_TEMPLATE, {
@@ -1599,7 +1652,7 @@
 
         templateInput.addEventListener('input', updatePreview);
         modal.addEventListener('click', event => {
-            if (event.target === modal) closeSettings();
+            if (event.target === modal) closeModal();
         });
 
         modal.querySelector(`#${MODAL_ID}-restore`).addEventListener('click', () => {
@@ -1607,22 +1660,15 @@
             updatePreview();
         });
 
-        modal.querySelector(`#${MODAL_ID}-cancel`).addEventListener('click', closeSettings);
+        modal.querySelector(`#${MODAL_ID}-cancel`).addEventListener('click', closeModal);
         modal.querySelector(`#${MODAL_ID}-save`).addEventListener('click', () => {
             saveConfig({
                 ...state.config,
                 batchZipTemplate: templateInput.value.trim() || DEFAULT_BATCH_ZIP_TEMPLATE
             });
             showToast(getBatchZipModalText('saved'));
-            closeSettings();
+            closeModal();
         });
-
-        window.addEventListener('keydown', function onKeyDown(event) {
-            if (event.key === 'Escape') {
-                window.removeEventListener('keydown', onKeyDown);
-                closeSettings();
-            }
-        }, { once: true });
     }
 
     function openSettings() {
@@ -1663,6 +1709,12 @@
         const rememberInput = modal.querySelector(`#${MODAL_ID}-remember`);
         const zipInput = modal.querySelector(`#${MODAL_ID}-zip`);
         const preview = modal.querySelector(`#${MODAL_ID}-preview`);
+        const unbindEscape = bindEscapeToClose(closeModal);
+
+        function closeModal() {
+            unbindEscape();
+            closeSettings();
+        }
 
         function updatePreview() {
             const sample = {
@@ -1692,7 +1744,7 @@
 
         templateInput.addEventListener('input', updatePreview);
         modal.addEventListener('click', event => {
-            if (event.target === modal) closeSettings();
+            if (event.target === modal) closeModal();
         });
 
         modal.querySelector(`#${MODAL_ID}-restore`).addEventListener('click', () => {
@@ -1708,7 +1760,7 @@
             showToast(t('toast.historyCleared'));
         });
 
-        modal.querySelector(`#${MODAL_ID}-cancel`).addEventListener('click', closeSettings);
+        modal.querySelector(`#${MODAL_ID}-cancel`).addEventListener('click', closeModal);
         modal.querySelector(`#${MODAL_ID}-save`).addEventListener('click', async () => {
             const nextConfig = {
                 filenameTemplate: templateInput.value.trim() || DEFAULT_FILENAME_TEMPLATE,
@@ -1727,15 +1779,8 @@
             }
             processAll();
             showToast(t('toast.settingsSaved'));
-            closeSettings();
+            closeModal();
         });
-
-        window.addEventListener('keydown', function onKeyDown(event) {
-            if (event.key === 'Escape') {
-                window.removeEventListener('keydown', onKeyDown);
-                closeSettings();
-            }
-        }, { once: true });
     }
 
     function createTimelineButton(article) {

@@ -32,7 +32,7 @@ It adds download entry points for:
 | --- | --- |
 | Timeline / tweet detail | Inline download button on media tweets |
 | Single media view | Floating download button |
-| Profile media page | Batch floating button with preview and ZIP export |
+| Profile media page | Batch floating button with preview and ZIP export. Currently image-focused |
 
 ## Screenshots
 
@@ -62,6 +62,7 @@ Add screenshots after publishing:
 - Automatic scroll collection runs on the media page
 - A wide preview dialog opens after collection
 - Right click: open ZIP filename settings for media-page batch download
+- Batch collection is currently image-focused; use tweet or media views for videos and GIFs
 
 ## Filename Templates
 
@@ -136,14 +137,14 @@ Download ZIP
 - `X easy Media Downloader.user.js`: main userscript
 - `README.md`: project overview
 - `LICENSE`: repository license text
-- `RELEASE_NOTES_v1.0.0.md`: first release notes draft for GitHub Releases
+- `RELEASE_NOTES_v1.1.1.md`: latest release notes for GitHub and Greasy Fork
 
 ## Version
 
-Current release target:
+Current release:
 
 ```text
-v1.0.0
+v1.1.1
 ```
 
 ## Notes
